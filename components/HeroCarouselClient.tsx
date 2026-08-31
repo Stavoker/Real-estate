@@ -3,7 +3,6 @@
 import * as React from "react";
 import Image, { getImageProps } from "next/image";
 import {
-  AnimatePresence,
   animate,
   motion,
   useMotionValue,
@@ -13,7 +12,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const CARD_SIZES =
-  "(max-width: 768px) 72vw, (max-width: 1280px) 280px, 260px";
+  "(max-width: 768px) 72vw, (max-width: 1280px) 560px, 520px";
 
 export interface HeroCarouselItem {
   id?: string | number;
@@ -37,7 +36,7 @@ export interface HeroCarouselProps {
   className?: string;
 }
 
-const CARD_H = 0.32;
+const CARD_H = 0.52;
 const CARD_AR = 0.78;
 const GAP = 0.042;
 const TITLE = 0.078;
@@ -45,12 +44,12 @@ const META = 0.0165;
 const LABEL = 0.011;
 const PAD = 0.042;
 const RAIL = 0.2;
-const MIN_CARD_H = 190;
-const MAX_CARD_H = 220;
+const MIN_CARD_H = 380;
+const MAX_CARD_H = 440;
 const TITLE_BLOCK_MIN = 140;
-const TITLE_BLOCK_MAX = 190;
+const TITLE_BLOCK_MAX = 180;
 const TYPE_H = 720;
-const SSR_BOX = { w: 1280, h: 620 };
+const SSR_BOX = { w: 1280, h: 800 };
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1800&q=80";
 
@@ -66,6 +65,23 @@ const wrap = (n: number, len: number) => {
   if (len <= 0) return 0;
   return ((n % len) + len) % len;
 };
+
+function rotateFwd(order: number[]) {
+  if (order.length === 0) return order;
+  return [...order.slice(1), order[0]];
+}
+
+function rotateBack(order: number[]) {
+  if (order.length === 0) return order;
+  return [order[order.length - 1], ...order.slice(0, -1)];
+}
+
+function orderWithActiveAt(count: number, active: number, anchor: number) {
+  const ids = Array.from({ length: count }, (_, i) => i);
+  if (count === 0) return ids;
+  const k = wrap(active - anchor, count);
+  return [...ids.slice(k), ...ids.slice(0, k)];
+}
 
 function warmImage(src: string, srcSet?: string, sizes?: string) {
   const key = `${src}::${srcSet ?? ""}::${sizes ?? ""}`;
@@ -105,7 +121,7 @@ function CarouselPhoto({
       fill
       sizes={sizes}
       preload={priority}
-      loading={priority ? undefined : "lazy"}
+      loading="eager"
       draggable={false}
       className={className}
       style={objectPosition ? { objectPosition } : undefined}
@@ -114,49 +130,7 @@ function CarouselPhoto({
   );
 }
 
-type LoopSlide = HeroCarouselItem & {
-  loopKey: string;
-  loopIndex: number;
-  real: number;
-};
-
-function buildLoop(items: HeroCarouselItem[], cloneCount: number): LoopSlide[] {
-  if (items.length === 0) return [];
-  if (cloneCount <= 0) {
-    return items.map((item, i) => ({
-      ...item,
-      loopKey: `real-${item.id ?? i}`,
-      loopIndex: i,
-      real: i,
-    }));
-  }
-
-  const left = items.slice(-cloneCount).map((item, i) => {
-    const real = items.length - cloneCount + i;
-    return {
-      ...item,
-      loopKey: `left-${item.id ?? real}`,
-      loopIndex: i,
-      real,
-    };
-  });
-
-  const middle = items.map((item, i) => ({
-    ...item,
-    loopKey: `real-${item.id ?? i}`,
-    loopIndex: cloneCount + i,
-    real: i,
-  }));
-
-  const right = items.slice(0, cloneCount).map((item, i) => ({
-    ...item,
-    loopKey: `right-${item.id ?? i}`,
-    loopIndex: cloneCount + items.length + i,
-    real: i,
-  }));
-
-  return [...left, ...middle, ...right];
-}
+type Snap = { order: number[]; track: number };
 
 export function HeroCarouselClient({
   items,
@@ -173,27 +147,37 @@ export function HeroCarouselClient({
   const jumping = React.useRef(false);
   const positioned = React.useRef(false);
   const lastBoxKey = React.useRef(SSR_BOX.w * 1e5 + SSR_BOX.h);
-  const trackRef = React.useRef(0);
+  const busy = React.useRef(false);
+  const pending = React.useRef(0);
+  const dirRef = React.useRef(0);
+  const goByRef = React.useRef<(delta: number) => void>(() => {});
 
   const count = items.length;
   const initialReal = wrap(
     clamp(defaultIndex, 0, Math.max(0, count - 1)),
     Math.max(1, count),
   );
+  const anchor = count > 2 ? Math.min(2, count - 1) : 0;
 
   const [box, setBox] = React.useState(SSR_BOX);
   const [paused, setPaused] = React.useState(false);
+  const [snap, setSnap] = React.useState<Snap>(() => ({
+    order: orderWithActiveAt(count, initialReal, anchor),
+    track: anchor,
+  }));
   const reduced = useReducedMotion();
+
+  const { order, track } = snap;
 
   const compact = box.w > 0 && box.w < 768;
   const typeH = Math.min(box.h, TYPE_H);
   const fullH = Math.round(
     clamp(
       compact
-        ? Math.min((box.w * 0.62) / CARD_AR, box.h * 0.42)
+        ? Math.min((box.w * 0.62) / CARD_AR, box.h * 0.48)
         : box.h * CARD_H,
-      compact ? 170 : MIN_CARD_H,
-      compact ? 220 : MAX_CARD_H,
+      compact ? 340 : MIN_CARD_H,
+      compact ? 400 : MAX_CARD_H,
     ),
   );
   const halfH = Math.round(fullH * 0.58);
@@ -204,24 +188,31 @@ export function HeroCarouselClient({
   const label = Math.max(compact ? 16 : 10, Math.round(typeH * LABEL));
   const metaSize = Math.max(14, Math.round(typeH * META));
   const titleBlock = clamp(
-    Math.round(typeH * 0.34),
+    Math.round(typeH * 0.28),
     TITLE_BLOCK_MIN,
     TITLE_BLOCK_MAX,
   );
 
-  const cloneCount = count >= 2 ? count : 0;
-  const realStart = cloneCount;
-  const total = cloneCount * 2 + count;
+  const realIndex =
+    count > 0 ? (order[wrap(track, count)] ?? initialReal) : 0;
 
-  const [track, setTrack] = React.useState(realStart + initialReal);
-  trackRef.current = track;
-
-  const realIndex = count > 0 ? wrap(track - realStart, count) : 0;
-
-  const goBy = React.useCallback((delta: number) => {
-    if (count < 2) return;
-    setTrack((t) => t + delta);
-  }, [count]);
+  const goBy = React.useCallback(
+    (delta: number) => {
+      if (count < 2 || delta === 0) return;
+      const dir = delta > 0 ? 1 : -1;
+      const rest = delta - dir;
+      if (busy.current) {
+        pending.current += delta;
+        return;
+      }
+      pending.current += rest;
+      busy.current = true;
+      dirRef.current = dir;
+      setSnap((s) => ({ ...s, track: anchor + dir }));
+    },
+    [count, anchor],
+  );
+  goByRef.current = goBy;
 
   const xFor = React.useCallback(
     (i: number) => box.w / 2 - (i * step + cardW / 2),
@@ -231,11 +222,6 @@ export function HeroCarouselClient({
   const x = useMotionValue(xFor(track));
   const target = xFor(track);
   const boxKey = box.w * 1e5 + box.h;
-
-  const settle = React.useCallback(
-    (t: number) => realStart + wrap(t - realStart, count),
-    [realStart, count],
-  );
 
   React.useLayoutEffect(() => {
     const stage = stageRef.current;
@@ -278,12 +264,31 @@ export function HeroCarouselClient({
     }
   }, [items]);
 
-  const swing = reduced
-    ? { duration: 0 }
-    : { duration: 0.7, ease: "easeOut" as const };
   const spring = reduced
     ? { duration: 0 }
     : { type: "spring" as const, stiffness: 240, damping: 36, mass: 0.95 };
+
+  const finishStep = React.useCallback(() => {
+    const dir = dirRef.current;
+    if (dir === 0) {
+      busy.current = false;
+      return;
+    }
+
+    jumping.current = true;
+    setSnap((s) => ({
+      order: dir > 0 ? rotateFwd(s.order) : rotateBack(s.order),
+      track: anchor,
+    }));
+    dirRef.current = 0;
+    busy.current = false;
+
+    const extra = pending.current;
+    pending.current = 0;
+    if (extra !== 0) {
+      requestAnimationFrame(() => goByRef.current(extra));
+    }
+  }, [anchor]);
 
   React.useLayoutEffect(() => {
     const boxChanged = lastBoxKey.current !== boxKey;
@@ -293,31 +298,20 @@ export function HeroCarouselClient({
       x.set(target);
       positioned.current = true;
       jumping.current = false;
+      busy.current = false;
       return;
     }
 
-    if (count >= 2 && (track < 0 || track >= total)) {
-      let t = track;
-      let xNow = x.get();
-      while (t >= total) {
-        t -= count;
-        xNow += count * step;
-      }
-      while (t < 0) {
-        t += count;
-        xNow -= count * step;
-      }
-      x.set(xNow);
-      positioned.current = true;
-      jumping.current = false;
-      setTrack(t);
-      return;
-    }
-
-    if (!positioned.current || jumping.current || boxChanged) {
+    if (!positioned.current || jumping.current) {
       x.set(target);
       positioned.current = true;
       jumping.current = false;
+      return;
+    }
+
+    if (boxChanged) {
+      x.set(target);
+      if (track !== anchor) finishStep();
       return;
     }
 
@@ -325,29 +319,16 @@ export function HeroCarouselClient({
       ...(reduced
         ? { duration: 0 }
         : { type: "spring" as const, stiffness: 240, damping: 36, mass: 0.95 }),
-      onComplete: () => {
-        setTrack((t) => {
-          if (t < realStart || t >= realStart + count) {
-            jumping.current = true;
-            return settle(t);
-          }
-          return t;
-        });
-      },
+      onComplete: finishStep,
     });
     return () => run.stop();
-  }, [target, track, count, reduced, x, boxKey, total, step, settle, realStart]);
+  }, [target, track, count, reduced, x, boxKey, anchor, finishStep]);
 
   React.useEffect(() => {
     if (!autoplay || paused || count < 2) return;
     const id = window.setTimeout(() => goBy(1), autoplayDelay);
     return () => window.clearTimeout(id);
-  }, [autoplay, autoplayDelay, count, goBy, paused, track]);
-
-  const looped = React.useMemo(
-    () => buildLoop(items, cloneCount),
-    [items, cloneCount],
-  );
+  }, [autoplay, autoplayDelay, count, goBy, paused, track, order]);
 
   const active = items[realIndex];
   if (!active || count === 0) return null;
@@ -379,46 +360,55 @@ export function HeroCarouselClient({
         className,
       )}
     >
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={realIndex}
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={swing}
-        >
-          <motion.div
+      {items.map((item, i) => {
+        const on = i === realIndex;
+        return (
+          <div
+            key={item.id ?? i}
             className="absolute inset-0"
-            initial={{ scale: reduced ? 1.28 : 1.42 }}
-            animate={{ scale: 1.28 }}
-            transition={
-              reduced ? { duration: 0 } : { duration: 6, ease: "linear" }
-            }
+            style={{
+              opacity: on ? 1 : 0,
+              zIndex: on ? 1 : 0,
+              transition: reduced ? undefined : "opacity 0.7s ease-out",
+              pointerEvents: "none",
+            }}
           >
-            <CarouselPhoto
-              src={active.image}
-              alt=""
-              sizes="100vw"
-              priority={realIndex === initialReal}
-              className="object-cover"
+            <motion.div
+              className="absolute inset-0"
+              animate={{ scale: on ? 1.28 : 1.42 }}
+              transition={
+                reduced || !on
+                  ? { duration: 0 }
+                  : { duration: 6, ease: "linear" }
+              }
+            >
+              <CarouselPhoto
+                src={item.image}
+                alt=""
+                sizes="100vw"
+                priority={i === initialReal || on}
+                className="object-cover"
+              />
+            </motion.div>
+            <div
+              className="absolute inset-0"
+              style={{ backgroundColor: item.accent ?? accent, mixBlendMode: "color" }}
             />
-          </motion.div>
-          <div
-            className="absolute inset-0"
-            style={{ backgroundColor: accent, mixBlendMode: "color" }}
-          />
-          <div
-            className="absolute inset-0 opacity-55"
-            style={{ backgroundColor: accent, mixBlendMode: "multiply" }}
-          />
-        </motion.div>
-      </AnimatePresence>
+            <div
+              className="absolute inset-0 opacity-55"
+              style={{
+                backgroundColor: item.accent ?? accent,
+                mixBlendMode: "multiply",
+              }}
+            />
+          </div>
+        );
+      })}
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/45" />
+      <div className="absolute inset-0 z-[2] bg-gradient-to-b from-black/40 via-transparent to-black/45" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.22] mix-blend-overlay"
+        className="pointer-events-none absolute inset-0 z-[2] opacity-[0.22] mix-blend-overlay"
         style={{ backgroundImage: GRAIN, backgroundSize: "180px 180px" }}
       />
 
@@ -470,37 +460,32 @@ export function HeroCarouselClient({
       >
         <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-end sm:gap-6 lg:gap-10">
           <div className="min-w-0 flex-1 basis-[52%] pr-2">
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.h2
-                key={realIndex}
-                className="font-display max-w-[18ch] font-semibold leading-[0.88] tracking-[-0.03em]"
-                style={{ fontSize: Math.max(32, Math.round(typeH * TITLE)) }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.18 } }}
-              >
-                {lines.map((line, i) => (
-                  <span key={i} className="block overflow-hidden">
-                    <motion.span
-                      className="block"
-                      initial={{ y: "110%" }}
-                      animate={{ y: 0 }}
-                      transition={
-                        reduced
-                          ? { duration: 0 }
-                          : {
-                              duration: 0.62,
-                              delay: i * 0.07,
-                              ease: [0.22, 1, 0.36, 1],
-                            }
-                      }
-                    >
-                      {line}
-                    </motion.span>
-                  </span>
-                ))}
-              </motion.h2>
-            </AnimatePresence>
+            <h2
+              key={realIndex}
+              className="font-display max-w-[18ch] font-semibold leading-[0.88] tracking-[-0.03em]"
+              style={{ fontSize: Math.max(32, Math.round(typeH * TITLE)) }}
+            >
+              {lines.map((line, i) => (
+                <span key={i} className="block overflow-hidden">
+                  <motion.span
+                    className="block"
+                    initial={{ y: "110%" }}
+                    animate={{ y: 0 }}
+                    transition={
+                      reduced
+                        ? { duration: 0 }
+                        : {
+                            duration: 0.62,
+                            delay: i * 0.07,
+                            ease: [0.22, 1, 0.36, 1],
+                          }
+                    }
+                  >
+                    {line}
+                  </motion.span>
+                </span>
+              ))}
+            </h2>
 
             {active.credit ? (
               <motion.p
@@ -556,18 +541,20 @@ export function HeroCarouselClient({
           className="flex items-start will-change-transform"
           style={{ gap, x }}
         >
-          {looped.map((item) => {
-            const isActive = item.real === realIndex;
+          {order.map((real, slot) => {
+            const item = items[real];
+            if (!item) return null;
+            const isActive = real === realIndex;
 
             return (
               <motion.button
-                key={item.loopKey}
+                key={item.id ?? real}
                 type="button"
                 aria-label={item.title.replace(/\n/g, " ")}
-                aria-current={item.loopIndex === track}
+                aria-current={slot === track}
                 onClick={() => {
-                  if (item.loopIndex === track) return;
-                  setTrack(item.loopIndex);
+                  if (slot === track) return;
+                  goBy(slot - track);
                 }}
                 className="relative shrink-0 cursor-pointer overflow-hidden bg-white/5"
                 style={{
@@ -584,7 +571,7 @@ export function HeroCarouselClient({
                   src={item.image}
                   alt=""
                   sizes={CARD_SIZES}
-                  priority={item.loopIndex === track}
+                  priority
                   className="object-cover"
                   objectPosition="50% 62%"
                 />

@@ -2,6 +2,7 @@ import { getImageProps } from "next/image";
 import { preload } from "react-dom";
 import { ImageStreamHero } from "@/components/ImageStreamHero";
 import { MagneticButton } from "@/components/MagneticButton";
+import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyListings } from "@/components/PropertyListings";
 import { properties, streamImages } from "@/lib/properties";
 
@@ -26,17 +27,39 @@ function preloadImage(
   });
 }
 
+const cities = [...new Set(properties.map((p) => p.city))];
+
 export default function PropertiesPage() {
-  properties.slice(0, 4).forEach((property) => {
+  properties.forEach((property, index) => {
     preloadImage(
       property.image,
       900,
       620,
       "(min-width: 1024px) 28vw, 90vw",
     );
-    property.gallery.forEach((src) => preloadImage(src, 120, 88, "120px"));
-    preloadImage(property.agent.photo, 48, 48, "48px");
+    if (index < 4) {
+      property.gallery.forEach((src) => preloadImage(src, 120, 88, "120px"));
+      preloadImage(property.agent.photo, 48, 48, "48px");
+    }
   });
+
+  const catalog = properties.map((p) => ({
+    id: p.id,
+    type: p.type,
+    price: p.price,
+    beds: p.beds,
+    baths: p.baths,
+    city: p.city,
+    popular: p.popular,
+    newest: p.newest,
+  }));
+
+  const cards = Object.fromEntries(
+    properties.map((property, index) => [
+      property.id,
+      <PropertyCard key={property.id} property={property} index={index} />,
+    ]),
+  );
 
   return (
     <main>
@@ -68,7 +91,7 @@ export default function PropertiesPage() {
         </div>
       </ImageStreamHero>
 
-      <PropertyListings />
+      <PropertyListings cities={cities} catalog={catalog} cards={cards} />
     </main>
   );
 }

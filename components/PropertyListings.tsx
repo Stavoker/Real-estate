@@ -1,17 +1,27 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { LayoutGroup, motion } from "framer-motion";
 import {
   FilterBar,
   PRICE_PRESETS,
   type FilterState,
 } from "@/components/FilterBar";
-import { PropertyCard } from "@/components/PropertyCard";
-import { properties, type Property } from "@/lib/properties";
+import type { PropertyType } from "@/lib/properties";
 import { luxuryEase } from "@/lib/utils";
 
-function layoutList(list: Property[], expandedId: string | null) {
+export interface ListingMeta {
+  id: string;
+  type: PropertyType;
+  price: number;
+  beds: number;
+  baths: number;
+  city: string;
+  popular: boolean;
+  newest: boolean;
+}
+
+function layoutList(list: ListingMeta[], expandedId: string | null) {
   if (!expandedId) {
     return list.map((property) => ({ property, wide: false }));
   }
@@ -36,9 +46,24 @@ function layoutList(list: Property[], expandedId: string | null) {
   ];
 }
 
-const cities = [...new Set(properties.map((p) => p.city))];
+function isIgnoredClick(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest("a, select, [data-ignore-toggle]"))
+  );
+}
 
-export function PropertyListings() {
+interface PropertyListingsProps {
+  cities: string[];
+  catalog: ListingMeta[];
+  cards: Record<string, ReactNode>;
+}
+
+export function PropertyListings({
+  cities,
+  catalog,
+  cards,
+}: PropertyListingsProps) {
   const [filters, setFilters] = useState<FilterState>({
     type: "All",
     price: "any",
@@ -53,7 +78,7 @@ export function PropertyListings() {
     const preset =
       PRICE_PRESETS.find((p) => p.id === filters.price) ?? PRICE_PRESETS[0];
 
-    const next = properties.filter((p) => {
+    const next = catalog.filter((p) => {
       if (filters.type !== "All" && p.type !== filters.type) return false;
       const inPrice =
         preset.max === Infinity
@@ -74,7 +99,7 @@ export function PropertyListings() {
     });
 
     return next;
-  }, [filters]);
+  }, [catalog, filters]);
 
   const items = useMemo(
     () => layoutList(list, expandedId),
@@ -83,7 +108,7 @@ export function PropertyListings() {
 
   return (
     <section id="listings" className="relative bg-ivory pt-3 pb-28 md:pt-4 min-[1400px]:pt-8">
-      <div className="px-4 md:px-8">
+      <div className="mx-auto max-w-[1400px] px-5 md:px-8">
         <FilterBar
           value={filters}
           onChange={(next) => {
@@ -92,39 +117,38 @@ export function PropertyListings() {
           }}
           cities={cities}
         />
+
+        <LayoutGroup>
+          <div className="mt-8 grid grid-cols-1 items-stretch gap-3 lg:grid-cols-2">
+            {items.map(({ property, wide }) => (
+              <motion.div
+                key={property.id}
+                layout
+                data-expanded={wide ? "true" : "false"}
+                transition={{ duration: 0.58, ease: luxuryEase }}
+                onClick={(e) => {
+                  if (isIgnoredClick(e.target)) return;
+                  setExpandedId(wide ? null : property.id);
+                }}
+                className={
+                  wide
+                    ? "group/listing h-auto cursor-pointer lg:col-span-2"
+                    : "group/listing h-auto min-h-[220px] cursor-pointer md:min-h-[232px]"
+                }
+              >
+                {cards[property.id]}
+              </motion.div>
+            ))}
+          </div>
+        </LayoutGroup>
+
+        {list.length === 0 && (
+          <p className="mx-auto mt-16 max-w-md text-center text-ink-soft">
+            No residences match these filters. Widen the range — the right home
+            is rarely the first grid.
+          </p>
+        )}
       </div>
-
-      <LayoutGroup>
-        <div className="mx-auto mt-8 grid max-w-[1400px] grid-cols-1 items-stretch gap-3 px-5 md:px-8 lg:grid-cols-2">
-          {items.map(({ property, wide }, i) => (
-            <motion.div
-              key={property.id}
-              layout
-              transition={{ duration: 0.58, ease: luxuryEase }}
-              className={
-                wide
-                  ? "h-auto lg:col-span-2"
-                  : "h-[360px] overflow-hidden md:h-[232px]"
-              }
-            >
-              <PropertyCard
-                property={property}
-                index={i}
-                expanded={wide}
-                onToggle={() => setExpandedId(wide ? null : property.id)}
-                className="h-full"
-              />
-            </motion.div>
-          ))}
-        </div>
-      </LayoutGroup>
-
-      {list.length === 0 && (
-        <p className="mx-auto mt-16 max-w-md text-center text-ink-soft">
-          No residences match these filters. Widen the range — the right home
-          is rarely the first grid.
-        </p>
-      )}
     </section>
   );
 }

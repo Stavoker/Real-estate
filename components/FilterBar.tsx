@@ -69,12 +69,14 @@ function Chip({
 function Group({
   label,
   children,
+  className,
 }: {
   label: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="min-w-0">
+    <div className={cn("min-w-0", className)}>
       <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
         {label}
       </p>
@@ -88,9 +90,9 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
     onChange({ ...value, ...partial });
 
   return (
-    <div className="sticky top-24 z-30 mx-auto max-w-[1400px] rounded-[1.35rem] border border-ink/8 bg-white/55 px-5 py-4 backdrop-blur-md md:top-28 md:px-6 md:py-5">
-      <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
-        <Group label="Property Type">
+    <div className="sticky top-24 z-30 w-full rounded-[1.35rem] border border-ink/8 bg-white/55 px-5 py-4 backdrop-blur-md md:top-28 md:px-6 md:py-5">
+      <div className="flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-5 xl:flex-nowrap">
+        <Group label="Property Type" className="xl:flex-1">
           {types.map((type) => (
             <Chip
               key={type}
@@ -102,7 +104,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Price">
+        <Group label="Price" className="xl:flex-1">
           {PRICE_PRESETS.map((preset) => (
             <Chip
               key={preset.id}
@@ -114,7 +116,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Bedrooms">
+        <Group label="Bedrooms" className="xl:flex-1">
           <Chip active={value.beds === 0} onClick={() => set({ beds: 0 })}>
             Any
           </Chip>
@@ -129,7 +131,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Bathrooms">
+        <Group label="Bathrooms" className="xl:flex-1">
           <Chip active={value.baths === 0} onClick={() => set({ baths: 0 })}>
             Any
           </Chip>
@@ -144,7 +146,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Location">
+        <Group label="Location" className="xl:flex-1">
           <Chip
             active={value.city === "All"}
             onClick={() => set({ city: "All" })}
@@ -162,7 +164,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <div className="min-w-[10rem] lg:ml-auto">
+        <div className="min-w-[9.5rem] shrink-0">
           <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
             Sort
           </p>
