@@ -90,7 +90,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
     onChange({ ...value, ...partial });
 
   return (
-    <div className="sticky top-24 z-30 w-full rounded-[1.35rem] border border-ink/8 bg-white/55 px-5 py-4 backdrop-blur-md md:top-28 md:px-6 md:py-5">
+    <div className="w-full rounded-[1.35rem] border border-ink/8 bg-white/55 px-5 py-4 backdrop-blur-md md:px-6 md:py-5">
       <div className="flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-5 xl:flex-nowrap">
         <Group label="Property Type" className="xl:flex-1">
           {types.map((type) => (

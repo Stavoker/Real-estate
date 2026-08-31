@@ -46,7 +46,7 @@ export default function HomePage() {
             items={carouselItems}
             defaultIndex={2}
             autoplay
-            autoplayDelay={5200}
+            autoplayDelay={4000}
             brand="EasyEstate"
           />
         </div>

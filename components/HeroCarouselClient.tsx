@@ -8,7 +8,6 @@ import {
   useMotionValue,
   useReducedMotion,
 } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const CARD_SIZES =
@@ -160,7 +159,6 @@ export function HeroCarouselClient({
   const anchor = count > 2 ? Math.min(2, count - 1) : 0;
 
   const [box, setBox] = React.useState(SSR_BOX);
-  const [paused, setPaused] = React.useState(false);
   const [snap, setSnap] = React.useState<Snap>(() => ({
     order: orderWithActiveAt(count, initialReal, anchor),
     track: anchor,
@@ -325,10 +323,10 @@ export function HeroCarouselClient({
   }, [target, track, count, reduced, x, boxKey, anchor, finishStep]);
 
   React.useEffect(() => {
-    if (!autoplay || paused || count < 2) return;
+    if (!autoplay || reduced || count < 2) return;
     const id = window.setTimeout(() => goBy(1), autoplayDelay);
     return () => window.clearTimeout(id);
-  }, [autoplay, autoplayDelay, count, goBy, paused, track, order]);
+  }, [autoplay, autoplayDelay, count, goBy, reduced, track, order]);
 
   const active = items[realIndex];
   if (!active || count === 0) return null;
@@ -352,8 +350,6 @@ export function HeroCarouselClient({
           goBy(1);
         }
       }}
-      onPointerEnter={() => setPaused(true)}
-      onPointerLeave={() => setPaused(false)}
       className={cn(
         "relative h-full min-h-[24rem] w-full overflow-hidden bg-[#161412] text-white select-none",
         "outline-none focus-visible:ring-1 focus-visible:ring-white/40 focus-visible:ring-inset",
@@ -611,31 +607,6 @@ export function HeroCarouselClient({
               transition={spring}
             />
           </div>
-        </div>
-
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Previous residence"
-            onClick={() => goBy(-1)}
-            className={cn(
-              "flex items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20",
-              compact ? "h-12 w-12" : "h-11 w-11",
-            )}
-          >
-            <ChevronLeft size={compact ? 22 : 18} />
-          </button>
-          <button
-            type="button"
-            aria-label="Next residence"
-            onClick={() => goBy(1)}
-            className={cn(
-              "flex items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20",
-              compact ? "h-12 w-12" : "h-11 w-11",
-            )}
-          >
-            <ChevronRight size={compact ? 22 : 18} />
-          </button>
         </div>
       </div>
     </div>
