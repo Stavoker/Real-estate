@@ -13,7 +13,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const CARD_SIZES =
-  "(max-width: 768px) 90vw, (max-width: 1280px) 58vw, 42vw";
+  "(max-width: 768px) 72vw, (max-width: 1280px) 280px, 260px";
 
 export interface HeroCarouselItem {
   id?: string | number;
@@ -37,7 +37,7 @@ export interface HeroCarouselProps {
   className?: string;
 }
 
-const CARD_H = 0.7;
+const CARD_H = 0.32;
 const CARD_AR = 0.78;
 const GAP = 0.042;
 const TITLE = 0.078;
@@ -45,12 +45,12 @@ const META = 0.0165;
 const LABEL = 0.011;
 const PAD = 0.042;
 const RAIL = 0.2;
-const MIN_CARD_H = 480;
-const MAX_CARD_H = 1680;
-const TITLE_BLOCK_MIN = 200;
-const TITLE_BLOCK_MAX = 280;
-const TYPE_H = 820;
-const SSR_BOX = { w: 1280, h: 1240 };
+const MIN_CARD_H = 190;
+const MAX_CARD_H = 220;
+const TITLE_BLOCK_MIN = 140;
+const TITLE_BLOCK_MAX = 190;
+const TYPE_H = 720;
+const SSR_BOX = { w: 1280, h: 620 };
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1800&q=80";
 
@@ -104,8 +104,8 @@ function CarouselPhoto({
       alt={alt}
       fill
       sizes={sizes}
-      priority={priority}
-      loading="eager"
+      preload={priority}
+      loading={priority ? undefined : "lazy"}
       draggable={false}
       className={className}
       style={objectPosition ? { objectPosition } : undefined}
@@ -190,10 +190,10 @@ export function HeroCarouselClient({
   const fullH = Math.round(
     clamp(
       compact
-        ? Math.min((box.w * 0.86) / CARD_AR, box.h * 0.58)
+        ? Math.min((box.w * 0.62) / CARD_AR, box.h * 0.42)
         : box.h * CARD_H,
-      compact ? 260 : MIN_CARD_H,
-      compact ? 560 : MAX_CARD_H,
+      compact ? 170 : MIN_CARD_H,
+      compact ? 220 : MAX_CARD_H,
     ),
   );
   const halfH = Math.round(fullH * 0.58);
@@ -584,6 +584,7 @@ export function HeroCarouselClient({
                   src={item.image}
                   alt=""
                   sizes={CARD_SIZES}
+                  priority={item.loopIndex === track}
                   className="object-cover"
                   objectPosition="50% 62%"
                 />

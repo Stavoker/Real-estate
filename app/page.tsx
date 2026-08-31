@@ -41,7 +41,7 @@ export default function HomePage() {
             Homes that hold the light.
           </h2>
         </div>
-        <div className="h-[118vh] min-h-[1240px]">
+        <div className="h-[560px] md:h-[620px]">
           <HeroCarousel
             items={carouselItems}
             defaultIndex={2}

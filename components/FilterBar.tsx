@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import type { ReactNode } from "react";
 import type { PropertyType, SortOption } from "@/lib/properties";
 import { cn } from "@/lib/utils";
 
@@ -13,122 +13,163 @@ const types: Array<"All" | PropertyType> = [
   "Commercial",
 ];
 
-const beds = [1, 2, 3, 4];
+const counts = [1, 2, 3, 4];
+
+export const PRICE_PRESETS = [
+  { id: "any", label: "Any", min: 0, max: Infinity },
+  { id: "under1", label: "Under $1M", min: 0, max: 1_000_000 },
+  { id: "1to2", label: "$1M – $2M", min: 1_000_000, max: 2_000_000 },
+  { id: "2to3", label: "$2M – $3M", min: 2_000_000, max: 3_000_000 },
+  { id: "3plus", label: "$3M+", min: 3_000_000, max: Infinity },
+] as const;
+
+export type PricePreset = (typeof PRICE_PRESETS)[number]["id"];
 
 export interface FilterState {
   type: "All" | PropertyType;
-  minPrice: number;
-  maxPrice: number;
+  price: PricePreset;
   beds: number;
+  baths: number;
+  city: string;
   sort: SortOption;
 }
 
 interface FilterBarProps {
   value: FilterState;
   onChange: (next: FilterState) => void;
-  maxBound: number;
+  cities: string[];
 }
 
-export function FilterBar({ value, onChange, maxBound }: FilterBarProps) {
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "rounded-full px-3 py-1.5 text-[12px] tracking-[0.06em] uppercase transition",
+        active
+          ? "bg-ink text-ivory"
+          : "bg-white/60 text-ink-soft hover:bg-white",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Group({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
+        {label}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
+
+export function FilterBar({ value, onChange, cities }: FilterBarProps) {
   const set = (partial: Partial<FilterState>) =>
     onChange({ ...value, ...partial });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="glass sticky top-24 z-30 mx-auto max-w-[1200px] rounded-[1.6rem] border border-white/60 p-4 shadow-[0_16px_40px_-28px_rgba(17,17,16,0.28)] md:top-28 md:p-5"
-    >
-      <div className="grid gap-5 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-5">
-          <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
-            Property Type
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {types.map((type) => (
-              <button
-                key={type}
-                onClick={() => set({ type })}
-                className={cn(
-                  "rounded-full px-3.5 py-1.5 text-[12px] tracking-[0.08em] uppercase transition",
-                  value.type === type
-                    ? "bg-ink text-ivory"
-                    : "bg-white/50 text-ink-soft hover:bg-white",
-                )}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="sticky top-24 z-30 mx-auto max-w-[1400px] rounded-[1.35rem] border border-ink/8 bg-white/55 px-5 py-4 backdrop-blur-md md:top-28 md:px-6 md:py-5">
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
+        <Group label="Property Type">
+          {types.map((type) => (
+            <Chip
+              key={type}
+              active={value.type === type}
+              onClick={() => set({ type })}
+            >
+              {type}
+            </Chip>
+          ))}
+        </Group>
 
-        <div className="lg:col-span-3">
-          <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
-            Price · ${Math.round(value.minPrice / 1_000_000)}M – $
-            {Math.round(value.maxPrice / 1_000_000)}M
-          </p>
-          <div className="mt-3 space-y-2">
-            <input
-              type="range"
-              min={500_000}
-              max={maxBound}
-              step={50_000}
-              value={value.minPrice}
-              onChange={(e) =>
-                set({
-                  minPrice: Math.min(Number(e.target.value), value.maxPrice - 100_000),
-                })
-              }
-              className="w-full accent-ink"
-            />
-            <input
-              type="range"
-              min={500_000}
-              max={maxBound}
-              step={50_000}
-              value={value.maxPrice}
-              onChange={(e) =>
-                set({
-                  maxPrice: Math.max(Number(e.target.value), value.minPrice + 100_000),
-                })
-              }
-              className="w-full accent-ink"
-            />
-          </div>
-        </div>
+        <Group label="Price">
+          {PRICE_PRESETS.map((preset) => (
+            <Chip
+              key={preset.id}
+              active={value.price === preset.id}
+              onClick={() => set({ price: preset.id })}
+            >
+              {preset.label}
+            </Chip>
+          ))}
+        </Group>
 
-        <div className="lg:col-span-2">
-          <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
-            Bedrooms
-          </p>
-          <div className="mt-2 flex gap-1.5">
-            {beds.map((n) => (
-              <button
-                key={n}
-                onClick={() => set({ beds: value.beds === n ? 0 : n })}
-                className={cn(
-                  "h-9 min-w-9 rounded-full px-2 text-xs transition",
-                  value.beds === n
-                    ? "bg-ink text-ivory"
-                    : "bg-white/50 text-ink-soft hover:bg-white",
-                )}
-              >
-                {n}+
-              </button>
-            ))}
-          </div>
-        </div>
+        <Group label="Bedrooms">
+          <Chip active={value.beds === 0} onClick={() => set({ beds: 0 })}>
+            Any
+          </Chip>
+          {counts.map((n) => (
+            <Chip
+              key={n}
+              active={value.beds === n}
+              onClick={() => set({ beds: value.beds === n ? 0 : n })}
+            >
+              {n}+
+            </Chip>
+          ))}
+        </Group>
 
-        <div className="lg:col-span-2">
+        <Group label="Bathrooms">
+          <Chip active={value.baths === 0} onClick={() => set({ baths: 0 })}>
+            Any
+          </Chip>
+          {counts.map((n) => (
+            <Chip
+              key={n}
+              active={value.baths === n}
+              onClick={() => set({ baths: value.baths === n ? 0 : n })}
+            >
+              {n}+
+            </Chip>
+          ))}
+        </Group>
+
+        <Group label="Location">
+          <Chip
+            active={value.city === "All"}
+            onClick={() => set({ city: "All" })}
+          >
+            All
+          </Chip>
+          {cities.map((city) => (
+            <Chip
+              key={city}
+              active={value.city === city}
+              onClick={() => set({ city: value.city === city ? "All" : city })}
+            >
+              {city}
+            </Chip>
+          ))}
+        </Group>
+
+        <div className="min-w-[10rem] lg:ml-auto">
           <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
             Sort
           </p>
           <select
             value={value.sort}
             onChange={(e) => set({ sort: e.target.value as SortOption })}
-            className="mt-2 w-full rounded-full bg-white/70 px-4 py-2 text-sm outline-none"
+            className="mt-2 w-full rounded-full bg-white/80 px-4 py-1.5 text-sm outline-none"
           >
             <option value="newest">Newest</option>
             <option value="price">Price</option>
@@ -136,6 +177,6 @@ export function FilterBar({ value, onChange, maxBound }: FilterBarProps) {
           </select>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

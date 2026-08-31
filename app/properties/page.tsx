@@ -1,9 +1,43 @@
+import { getImageProps } from "next/image";
+import { preload } from "react-dom";
 import { ImageStreamHero } from "@/components/ImageStreamHero";
 import { MagneticButton } from "@/components/MagneticButton";
 import { PropertyListings } from "@/components/PropertyListings";
-import { streamImages } from "@/lib/properties";
+import { properties, streamImages } from "@/lib/properties";
+
+function preloadImage(
+  src: string,
+  width: number,
+  height: number,
+  sizes?: string,
+) {
+  const { props } = getImageProps({
+    src,
+    alt: "",
+    width,
+    height,
+    sizes,
+  });
+  preload(props.src, {
+    as: "image",
+    imageSrcSet: props.srcSet,
+    imageSizes: props.sizes,
+    fetchPriority: "low",
+  });
+}
 
 export default function PropertiesPage() {
+  properties.slice(0, 4).forEach((property) => {
+    preloadImage(
+      property.image,
+      900,
+      620,
+      "(min-width: 1024px) 28vw, 90vw",
+    );
+    property.gallery.forEach((src) => preloadImage(src, 120, 88, "120px"));
+    preloadImage(property.agent.photo, 48, 48, "48px");
+  });
+
   return (
     <main>
       <ImageStreamHero

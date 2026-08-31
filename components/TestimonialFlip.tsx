@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { useRef, type PointerEvent } from "react";
 import Image from "next/image";
 import {
   motion,
@@ -15,6 +15,8 @@ import { formatPrice, formatNumber, cn, luxuryEase } from "@/lib/utils";
 interface TestimonialFlipProps {
   property: Property;
   className?: string;
+  flipped: boolean;
+  onToggle: () => void;
 }
 
 const TILT = 9;
@@ -23,8 +25,9 @@ const spring = { stiffness: 220, damping: 22, mass: 0.55 };
 export function TestimonialFlip({
   property,
   className,
+  flipped,
+  onToggle,
 }: TestimonialFlipProps) {
-  const [flipped, setFlipped] = useState(false);
   const cardRef = useRef<HTMLButtonElement>(null);
   const reduced = useReducedMotion();
 
@@ -63,7 +66,7 @@ export function TestimonialFlip({
     <motion.button
       ref={cardRef}
       type="button"
-      onClick={() => setFlipped((v) => !v)}
+      onClick={onToggle}
       onPointerMove={onPointerMove}
       onPointerLeave={resetTilt}
       initial={{ opacity: 0, y: 40 }}
@@ -71,7 +74,7 @@ export function TestimonialFlip({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.8, ease: luxuryEase }}
       className={cn(
-        "group relative w-[min(86vw,380px)] shrink-0 text-left",
+        "group relative w-[min(86vw,380px)] shrink-0 text-left shadow-none",
         className,
       )}
       style={{ perspective: 1100 }}
@@ -93,7 +96,7 @@ export function TestimonialFlip({
           style={{ transformStyle: "preserve-3d" }}
         >
           <div
-            className="relative overflow-hidden bg-sand shadow-none transition-shadow duration-500 min-[1400px]:shadow-[0_32px_64px_-30px_rgba(17,17,16,0.5)] min-[1400px]:group-hover:shadow-[0_48px_90px_-22px_rgba(17,17,16,0.62)]"
+            className="relative overflow-hidden bg-sand"
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
@@ -144,7 +147,7 @@ export function TestimonialFlip({
           </div>
 
           <div
-            className="absolute inset-0 flex flex-col justify-between overflow-hidden bg-[#171512] p-8 text-ivory shadow-none min-[1400px]:shadow-[0_32px_64px_-30px_rgba(17,17,16,0.55)]"
+            className="absolute inset-0 flex flex-col justify-between overflow-hidden bg-[#171512] p-8 text-ivory"
             style={{
               transform: "rotateY(180deg)",
               backfaceVisibility: "hidden",

@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { LayoutGroup, motion } from "framer-motion";
-import { FilterBar, type FilterState } from "@/components/FilterBar";
+import {
+  FilterBar,
+  PRICE_PRESETS,
+  type FilterState,
+} from "@/components/FilterBar";
 import { PropertyCard } from "@/components/PropertyCard";
 import { properties, type Property } from "@/lib/properties";
 import { luxuryEase } from "@/lib/utils";
@@ -32,23 +36,33 @@ function layoutList(list: Property[], expandedId: string | null) {
   ];
 }
 
-const maxBound = Math.max(...properties.map((p) => p.price));
+const cities = [...new Set(properties.map((p) => p.city))];
 
 export function PropertyListings() {
   const [filters, setFilters] = useState<FilterState>({
     type: "All",
-    minPrice: 500_000,
-    maxPrice: maxBound,
+    price: "any",
     beds: 0,
+    baths: 0,
+    city: "All",
     sort: "newest",
   });
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const list = useMemo(() => {
+    const preset =
+      PRICE_PRESETS.find((p) => p.id === filters.price) ?? PRICE_PRESETS[0];
+
     const next = properties.filter((p) => {
       if (filters.type !== "All" && p.type !== filters.type) return false;
-      if (p.price < filters.minPrice || p.price > filters.maxPrice) return false;
+      const inPrice =
+        preset.max === Infinity
+          ? p.price >= preset.min
+          : p.price >= preset.min && p.price < preset.max;
+      if (!inPrice) return false;
       if (filters.beds && p.beds < filters.beds) return false;
+      if (filters.baths && p.baths < filters.baths) return false;
+      if (filters.city !== "All" && p.city !== filters.city) return false;
       return true;
     });
 
@@ -76,24 +90,29 @@ export function PropertyListings() {
             setExpandedId(null);
             setFilters(next);
           }}
-          maxBound={maxBound}
+          cities={cities}
         />
       </div>
 
       <LayoutGroup>
-        <div className="mx-auto mt-8 grid max-w-[1400px] grid-cols-1 items-start gap-3 px-5 md:px-8 lg:grid-cols-2">
+        <div className="mx-auto mt-8 grid max-w-[1400px] grid-cols-1 items-stretch gap-3 px-5 md:px-8 lg:grid-cols-2">
           {items.map(({ property, wide }, i) => (
             <motion.div
               key={property.id}
               layout
               transition={{ duration: 0.58, ease: luxuryEase }}
-              className={wide ? "lg:col-span-2" : undefined}
+              className={
+                wide
+                  ? "h-auto lg:col-span-2"
+                  : "h-[360px] overflow-hidden md:h-[232px]"
+              }
             >
               <PropertyCard
                 property={property}
                 index={i}
                 expanded={wide}
                 onToggle={() => setExpandedId(wide ? null : property.id)}
+                className="h-full"
               />
             </motion.div>
           ))}

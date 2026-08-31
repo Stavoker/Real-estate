@@ -18,6 +18,7 @@ function pad(n: number) {
 export function TestimonialGallery({ properties }: TestimonialGalleryProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const readActive = useCallback(() => {
     const el = scrollerRef.current;
@@ -92,7 +93,13 @@ export function TestimonialGallery({ properties }: TestimonialGalleryProps) {
             data-sale-card
             className="shrink-0 snap-center md:snap-start"
           >
-            <TestimonialFlip property={property} />
+            <TestimonialFlip
+              property={property}
+              flipped={openId === property.id}
+              onToggle={() =>
+                setOpenId((id) => (id === property.id ? null : property.id))
+              }
+            />
           </div>
         ))}
       </div>
