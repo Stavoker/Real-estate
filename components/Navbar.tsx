@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn, luxuryEase } from "@/lib/utils";
@@ -21,14 +21,21 @@ const menuLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(Math.min(1, window.scrollY / 320));
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const el = barRef.current;
+    if (!el) return;
+
+    const paint = () => {
+      const t = Math.min(1, window.scrollY / 320);
+      el.style.background = `rgba(255, 252, 247, ${0.4 + t * 0.22})`;
+    };
+
+    paint();
+    window.addEventListener("scroll", paint, { passive: true });
+    return () => window.removeEventListener("scroll", paint);
   }, []);
 
   useEffect(() => {
@@ -53,12 +60,8 @@ export function Navbar() {
     <header className="pointer-events-none fixed top-0 right-0 left-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4 md:px-6">
       <div className="pointer-events-auto relative mx-auto max-w-[1180px]">
         <div
-          className="relative z-50 flex items-center justify-between rounded-full border border-white/60 px-3.5 py-1.5 shadow-[0_10px_40px_-20px_rgba(17,17,16,0.2)] sm:px-4 sm:py-2 md:px-5"
-          style={{
-            background: `rgba(255, 252, 247, ${0.4 + scrolled * 0.22})`,
-            backdropFilter: `blur(${20 + scrolled * 8}px) saturate(1.55)`,
-            WebkitBackdropFilter: `blur(${20 + scrolled * 8}px) saturate(1.55)`,
-          }}
+          ref={barRef}
+          className="relative z-50 flex items-center justify-between rounded-full border border-white/60 bg-[rgba(255,252,247,0.4)] px-3.5 py-1.5 shadow-[0_10px_40px_-20px_rgba(17,17,16,0.2)] backdrop-blur-xl sm:px-4 sm:py-2 md:px-5"
         >
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
             <span className="relative flex h-8 w-8 shrink-0 items-center justify-center">

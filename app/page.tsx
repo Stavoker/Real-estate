@@ -32,8 +32,8 @@ export default function HomePage() {
     <main>
       <Hero />
 
-      <section className="relative bg-ivory pt-32 md:pt-40">
-        <div className="mx-auto max-w-[1400px] px-6 pb-10 md:px-10">
+      <section className="relative bg-ivory">
+        <div className="mx-auto max-w-[1400px] px-6 pt-28 pb-10 md:px-10 md:pt-32 md:pb-12">
           <p className="font-mono text-[11px] tracking-[0.28em] text-ink-soft uppercase">
             Featured Residences
           </p>
@@ -41,12 +41,12 @@ export default function HomePage() {
             Homes that hold the light.
           </h2>
         </div>
-        <div className="h-[720px] md:h-[800px]">
+        <div className="h-[540px] md:h-[560px]">
           <HeroCarousel
             items={carouselItems}
             defaultIndex={2}
             autoplay
-            autoplayDelay={4000}
+            autoplayDelay={2000}
             brand="EasyEstate"
           />
         </div>

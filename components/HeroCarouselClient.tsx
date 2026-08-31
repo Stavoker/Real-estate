@@ -35,7 +35,7 @@ export interface HeroCarouselProps {
   className?: string;
 }
 
-const CARD_H = 0.52;
+const CARD_H = 0.64;
 const CARD_AR = 0.78;
 const GAP = 0.042;
 const TITLE = 0.078;
@@ -43,12 +43,12 @@ const META = 0.0165;
 const LABEL = 0.011;
 const PAD = 0.042;
 const RAIL = 0.2;
-const MIN_CARD_H = 380;
-const MAX_CARD_H = 440;
-const TITLE_BLOCK_MIN = 140;
-const TITLE_BLOCK_MAX = 180;
-const TYPE_H = 720;
-const SSR_BOX = { w: 1280, h: 800 };
+const MIN_CARD_H = 340;
+const MAX_CARD_H = 390;
+const TITLE_BLOCK_MIN = 128;
+const TITLE_BLOCK_MAX = 148;
+const TYPE_H = 580;
+const SSR_BOX = { w: 1280, h: 560 };
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1800&q=80";
 
@@ -139,7 +139,7 @@ export function HeroCarouselClient({
   onBack,
   onMenu,
   autoplay = false,
-  autoplayDelay = 4000,
+  autoplayDelay = 2000,
   className,
 }: HeroCarouselProps) {
   const stageRef = React.useRef<HTMLDivElement>(null);
@@ -183,6 +183,7 @@ export function HeroCarouselClient({
   const gap = Math.max(8, Math.round(cardW * GAP));
   const step = cardW + gap;
   const pad = Math.max(40, Math.round(box.w * PAD));
+  const edge = Math.max(18, Math.round(box.h * 0.032));
   const label = Math.max(compact ? 16 : 10, Math.round(typeH * LABEL));
   const metaSize = Math.max(14, Math.round(typeH * META));
   const titleBlock = clamp(
@@ -411,7 +412,7 @@ export function HeroCarouselClient({
       <div
         className="absolute inset-x-0 z-20 flex items-center justify-center"
         style={{
-          top: Math.max(16, typeH * 0.029),
+          top: edge,
           gap: `${Math.max(20, box.w * 0.06)}px`,
         }}
       >
@@ -587,7 +588,7 @@ export function HeroCarouselClient({
         className="absolute z-20 flex items-center gap-3"
         style={{
           left: pad,
-          bottom: Math.max(14, box.h * 0.022),
+          bottom: edge,
           width: `calc(100% - ${pad * 2}px)`,
         }}
       >

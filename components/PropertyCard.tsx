@@ -46,7 +46,7 @@ export function PropertyCard({
   return (
     <article
       className={cn(
-        "group relative h-full cursor-pointer overflow-hidden rounded-[1.65rem] border border-white/70 bg-white/45 shadow-none backdrop-blur-xl",
+        "group relative h-full cursor-pointer overflow-hidden rounded-[1.65rem] border border-white/70 bg-[#f8f4ee]/92 shadow-none",
         className,
       )}
     >
@@ -127,7 +127,7 @@ export function PropertyCard({
                       fill
                       className="object-cover"
                       sizes="120px"
-                      loading={eager ? "eager" : "lazy"}
+                      loading="lazy"
                     />
                   </div>
                 ))}
@@ -162,7 +162,7 @@ export function PropertyCard({
                       fill
                       className="object-cover"
                       sizes="48px"
-                      loading={eager ? "eager" : "lazy"}
+                      loading="lazy"
                     />
                   </div>
                   <div className="min-w-0">

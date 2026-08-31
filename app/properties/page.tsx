@@ -1,48 +1,12 @@
-import { getImageProps } from "next/image";
-import { preload } from "react-dom";
 import { ImageStreamHero } from "@/components/ImageStreamHero";
 import { MagneticButton } from "@/components/MagneticButton";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyListings } from "@/components/PropertyListings";
 import { properties, streamImages } from "@/lib/properties";
 
-function preloadImage(
-  src: string,
-  width: number,
-  height: number,
-  sizes?: string,
-) {
-  const { props } = getImageProps({
-    src,
-    alt: "",
-    width,
-    height,
-    sizes,
-  });
-  preload(props.src, {
-    as: "image",
-    imageSrcSet: props.srcSet,
-    imageSizes: props.sizes,
-    fetchPriority: "low",
-  });
-}
-
 const cities = [...new Set(properties.map((p) => p.city))];
 
 export default function PropertiesPage() {
-  properties.forEach((property, index) => {
-    preloadImage(
-      property.image,
-      900,
-      620,
-      "(min-width: 1024px) 28vw, 90vw",
-    );
-    if (index < 4) {
-      property.gallery.forEach((src) => preloadImage(src, 120, 88, "120px"));
-      preloadImage(property.agent.photo, 48, 48, "48px");
-    }
-  });
-
   const catalog = properties.map((p) => ({
     id: p.id,
     type: p.type,
