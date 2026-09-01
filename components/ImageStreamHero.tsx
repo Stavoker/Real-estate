@@ -43,8 +43,14 @@ export function ImageStreamHero({
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-[-20%] left-1/2 h-[70%] w-[70%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.95),rgba(232,220,198,0.35)_45%,transparent_70%)]" />
-        <div className="absolute top-[30%] left-[8%] h-64 w-64 rounded-full bg-gold/15" />
-        <div className="absolute right-[6%] bottom-[10%] h-72 w-72 rounded-full bg-[#d7c4a4]/30" />
+        <div
+          aria-hidden
+          className="absolute top-[4%] left-[-28%] h-[min(88vw,48rem)] w-[min(88vw,48rem)] rounded-full bg-[radial-gradient(circle,rgba(184,154,106,0.22)_0%,rgba(184,154,106,0.08)_42%,transparent_70%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute right-[-30%] bottom-[-18%] h-[min(96vw,54rem)] w-[min(96vw,54rem)] rounded-full bg-[radial-gradient(circle,rgba(215,196,164,0.34)_0%,rgba(215,196,164,0.12)_46%,transparent_72%)]"
+        />
       </div>
 
       <ImageStreamRails left={left} right={right} />

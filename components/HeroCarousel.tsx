@@ -22,7 +22,7 @@ function preloadOptimized(
   const { props } = getImageProps(
     kind === "hero"
       ? { src, alt: "", width: 1920, height: 1080, sizes: "100vw" }
-      : { src, alt: "", width: 1600, height: 2048, sizes: CARD_SIZES },
+      : { src, alt: "", width: 1200, height: 1536, sizes: CARD_SIZES },
   );
 
   preload(props.src, {
@@ -48,10 +48,11 @@ export function HeroCarousel(props: HeroCarouselProps) {
       Math.abs(i - start),
       count - Math.abs(i - start),
     );
-    const priority = dist === 0 ? "high" : "low";
+    if (dist > 1) continue;
 
+    const priority = dist === 0 ? "high" : "low";
     preloadOptimized(item.image, "card", priority);
-    preloadOptimized(item.image, "hero", dist <= 1 ? priority : "low");
+    preloadOptimized(item.image, "hero", priority);
   }
 
   return <HeroCarouselClient {...props} />;

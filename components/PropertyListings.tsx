@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { getImageProps } from "next/image";
 import { LayoutGroup, motion } from "framer-motion";
 import {
   FilterBar,
@@ -19,6 +20,42 @@ export interface ListingMeta {
   city: string;
   popular: boolean;
   newest: boolean;
+  image: string;
+  gallery: string[];
+  agentPhoto: string;
+}
+
+const warmed = new Set<string>();
+
+function warmListing(meta: ListingMeta) {
+  if (typeof window === "undefined" || warmed.has(meta.id)) return;
+  warmed.add(meta.id);
+
+  const sources = [
+    { src: meta.image, width: 1280, height: 900, sizes: "(min-width: 1024px) 640px, 100vw" },
+    ...meta.gallery.map((src) => ({
+      src,
+      width: 240,
+      height: 176,
+      sizes: "120px",
+    })),
+    { src: meta.agentPhoto, width: 96, height: 96, sizes: "48px" },
+  ];
+
+  for (const source of sources) {
+    const { props } = getImageProps({
+      src: source.src,
+      alt: "",
+      width: source.width,
+      height: source.height,
+      sizes: source.sizes,
+    });
+    const img = new window.Image();
+    img.decoding = "async";
+    if (props.srcSet) img.srcset = props.srcSet;
+    if (props.sizes) img.sizes = props.sizes;
+    img.src = props.src;
+  }
 }
 
 function layoutList(list: ListingMeta[], expandedId: string | null) {
@@ -106,6 +143,26 @@ export function PropertyListings({
     [list, expandedId],
   );
 
+  useEffect(() => {
+    const nodes = document.querySelectorAll<HTMLElement>("[data-listing-id]");
+    if (!nodes.length) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const id = entry.target.getAttribute("data-listing-id");
+          const meta = catalog.find((p) => p.id === id);
+          if (meta) warmListing(meta);
+        }
+      },
+      { rootMargin: "240px 0px" },
+    );
+
+    nodes.forEach((node) => io.observe(node));
+    return () => io.disconnect();
+  }, [catalog, items]);
+
   return (
     <section id="listings" className="relative bg-ivory pt-3 pb-28 md:pt-4 min-[1400px]:pt-8">
       <div className="mx-auto max-w-[1400px] px-5 md:px-8">
@@ -124,16 +181,20 @@ export function PropertyListings({
               <motion.div
                 key={property.id}
                 layout
+                data-listing-id={property.id}
                 data-expanded={wide ? "true" : "false"}
                 transition={{ duration: 0.58, ease: luxuryEase }}
+                onPointerEnter={() => warmListing(property)}
+                onFocus={() => warmListing(property)}
                 onClick={(e) => {
                   if (isIgnoredClick(e.target)) return;
+                  warmListing(property);
                   setExpandedId(wide ? null : property.id);
                 }}
                 className={
                   wide
                     ? "group/listing h-auto cursor-pointer lg:col-span-2"
-                    : "group/listing h-auto min-h-[220px] cursor-pointer md:min-h-[232px]"
+                    : "group/listing h-[22rem] cursor-pointer md:h-[15rem]"
                 }
               >
                 {cards[property.id]}

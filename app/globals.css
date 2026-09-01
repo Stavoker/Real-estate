@@ -22,9 +22,8 @@
   --color-ink-soft: var(--ink-soft);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --font-sans: var(--font-outfit);
+  --font-sans: var(--font-inter);
   --font-display: var(--font-cormorant);
-  --font-mono: var(--font-ibm);
 }
 
 html {
@@ -34,7 +33,7 @@ html {
 body {
   background: var(--ivory);
   color: var(--ink);
-  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
 }
 
@@ -48,7 +47,8 @@ body {
 }
 
 .font-mono {
-  font-family: var(--font-ibm), ui-monospace, monospace;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .grain {

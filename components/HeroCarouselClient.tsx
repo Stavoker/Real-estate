@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const CARD_SIZES =
-  "(max-width: 768px) 72vw, (max-width: 1280px) 560px, 520px";
+  "(max-width: 768px) 70vw, (max-width: 1280px) 280px, 240px";
 
 export interface HeroCarouselItem {
   id?: string | number;
@@ -35,7 +35,7 @@ export interface HeroCarouselProps {
   className?: string;
 }
 
-const CARD_H = 0.64;
+const CARD_H = 0.48;
 const CARD_AR = 0.78;
 const GAP = 0.042;
 const TITLE = 0.078;
@@ -43,12 +43,12 @@ const META = 0.0165;
 const LABEL = 0.011;
 const PAD = 0.042;
 const RAIL = 0.2;
-const MIN_CARD_H = 340;
-const MAX_CARD_H = 390;
-const TITLE_BLOCK_MIN = 128;
-const TITLE_BLOCK_MAX = 148;
-const TYPE_H = 580;
-const SSR_BOX = { w: 1280, h: 560 };
+const MIN_CARD_H = 198;
+const MAX_CARD_H = 218;
+const TITLE_BLOCK_MIN = 118;
+const TITLE_BLOCK_MAX = 136;
+const TYPE_H = 520;
+const SSR_BOX = { w: 1280, h: 450 };
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1800&q=80";
 
@@ -172,10 +172,10 @@ export function HeroCarouselClient({
   const fullH = Math.round(
     clamp(
       compact
-        ? Math.min((box.w * 0.62) / CARD_AR, box.h * 0.48)
+        ? Math.min((box.w * 0.55) / CARD_AR, box.h * 0.42)
         : box.h * CARD_H,
-      compact ? 340 : MIN_CARD_H,
-      compact ? 400 : MAX_CARD_H,
+      compact ? 198 : MIN_CARD_H,
+      compact ? 218 : MAX_CARD_H,
     ),
   );
   const halfH = Math.round(fullH * 0.58);
@@ -243,7 +243,22 @@ export function HeroCarouselClient({
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
-    for (const item of items) {
+    const nearby = new Set<number>();
+    for (let i = -1; i <= 1; i++) {
+      nearby.add(wrap(realIndex + i, count));
+    }
+
+    items.forEach((item, i) => {
+      const card = getImageProps({
+        src: item.image,
+        alt: "",
+        width: 1200,
+        height: 1536,
+        sizes: CARD_SIZES,
+      }).props;
+      warmImage(card.src, card.srcSet, card.sizes);
+
+      if (!nearby.has(i)) return;
       const hero = getImageProps({
         src: item.image,
         alt: "",
@@ -251,17 +266,9 @@ export function HeroCarouselClient({
         height: 1080,
         sizes: "100vw",
       }).props;
-      const card = getImageProps({
-        src: item.image,
-        alt: "",
-        width: 1600,
-        height: 2048,
-        sizes: CARD_SIZES,
-      }).props;
       warmImage(hero.src, hero.srcSet, hero.sizes);
-      warmImage(card.src, card.srcSet, card.sizes);
-    }
-  }, [items]);
+    });
+  }, [items, realIndex, count]);
 
   const spring = reduced
     ? { duration: 0 }

@@ -2,6 +2,7 @@
 
 import { useRef, type PointerEvent } from "react";
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import {
   motion,
   useMotionTemplate,
@@ -74,11 +75,12 @@ export function TestimonialFlip({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.8, ease: luxuryEase }}
       className={cn(
-        "group relative w-[min(86vw,380px)] shrink-0 text-left shadow-none",
+        "group relative w-[min(86vw,380px)] shrink-0 text-left shadow-none drop-shadow-none",
         className,
       )}
       style={{ perspective: 1100 }}
       aria-label={`Flip ${property.title} testimonial`}
+      aria-pressed={flipped}
     >
       <motion.div
         className="relative will-change-transform"
@@ -96,7 +98,7 @@ export function TestimonialFlip({
           style={{ transformStyle: "preserve-3d" }}
         >
           <div
-            className="relative overflow-hidden bg-sand"
+            className="relative overflow-hidden bg-sand shadow-none"
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
@@ -132,7 +134,7 @@ export function TestimonialFlip({
               Featured
             </span>
 
-            <div className="absolute right-6 bottom-6 left-6">
+            <div className="absolute right-6 bottom-6 left-6 pr-10">
               <h3 className="font-display text-[30px] leading-[0.9] text-ivory sm:text-[34px]">
                 {property.title}
               </h3>
@@ -147,7 +149,7 @@ export function TestimonialFlip({
           </div>
 
           <div
-            className="absolute inset-0 flex flex-col justify-between overflow-hidden bg-[#171512] p-8 text-ivory"
+            className="absolute inset-0 flex flex-col justify-between overflow-hidden bg-[#171512] p-8 text-ivory shadow-none"
             style={{
               transform: "rotateY(180deg)",
               backfaceVisibility: "hidden",
@@ -191,6 +193,14 @@ export function TestimonialFlip({
           }}
         />
       </motion.div>
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute right-4 bottom-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/20 text-ivory/85 backdrop-blur-[2px]"
+        animate={{ rotate: flipped ? 180 : 0 }}
+        transition={{ duration: 0.45, ease: luxuryEase }}
+      >
+        <ArrowUpRight size={14} strokeWidth={1.35} />
+      </motion.span>
     </motion.button>
   );
 }

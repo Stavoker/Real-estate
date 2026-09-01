@@ -16,6 +16,9 @@ export default function PropertiesPage() {
     city: p.city,
     popular: p.popular,
     newest: p.newest,
+    image: p.image,
+    gallery: p.gallery,
+    agentPhoto: p.agent.photo,
   }));
 
   const cards = Object.fromEntries(

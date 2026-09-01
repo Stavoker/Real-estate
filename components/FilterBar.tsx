@@ -55,10 +55,10 @@ function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-full px-3 py-1.5 text-[12px] tracking-[0.06em] uppercase transition",
+        "rounded-full px-3.5 py-1.5 text-[13px] transition",
         active
           ? "bg-ink text-ivory"
-          : "bg-white/60 text-ink-soft hover:bg-white",
+          : "bg-ivory-deep text-ink-soft hover:bg-white hover:text-ink",
       )}
     >
       {children}
@@ -77,10 +77,8 @@ function Group({
 }) {
   return (
     <div className={cn("min-w-0", className)}>
-      <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
-        {label}
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">{children}</div>
+      <h3 className="text-sm font-medium text-ink">{label}</h3>
+      <div className="mt-3 flex flex-wrap gap-2">{children}</div>
     </div>
   );
 }
@@ -90,9 +88,9 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
     onChange({ ...value, ...partial });
 
   return (
-    <div className="w-full rounded-[1.35rem] border border-ink/8 bg-white/55 px-5 py-4 backdrop-blur-md md:px-6 md:py-5">
-      <div className="flex w-full flex-wrap items-start justify-between gap-x-4 gap-y-5 xl:flex-nowrap">
-        <Group label="Property Type" className="xl:flex-1">
+    <div className="w-full border-b border-ink/8 pb-7">
+      <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <Group label="Property Type">
           {types.map((type) => (
             <Chip
               key={type}
@@ -104,7 +102,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Price" className="xl:flex-1">
+        <Group label="Price">
           {PRICE_PRESETS.map((preset) => (
             <Chip
               key={preset.id}
@@ -116,7 +114,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Bedrooms" className="xl:flex-1">
+        <Group label="Bedrooms">
           <Chip active={value.beds === 0} onClick={() => set({ beds: 0 })}>
             Any
           </Chip>
@@ -131,7 +129,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Bathrooms" className="xl:flex-1">
+        <Group label="Bathrooms">
           <Chip active={value.baths === 0} onClick={() => set({ baths: 0 })}>
             Any
           </Chip>
@@ -146,7 +144,7 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
           ))}
         </Group>
 
-        <Group label="Location" className="xl:flex-1">
+        <Group label="Location">
           <Chip
             active={value.city === "All"}
             onClick={() => set({ city: "All" })}
@@ -163,21 +161,25 @@ export function FilterBar({ value, onChange, cities }: FilterBarProps) {
             </Chip>
           ))}
         </Group>
+      </div>
 
-        <div className="min-w-[9.5rem] shrink-0">
-          <p className="font-mono text-[10px] tracking-[0.22em] text-ink-soft uppercase">
-            Sort
-          </p>
-          <select
-            value={value.sort}
-            onChange={(e) => set({ sort: e.target.value as SortOption })}
-            className="mt-2 w-full rounded-full bg-white/80 px-4 py-1.5 text-sm outline-none"
-          >
-            <option value="newest">Newest</option>
-            <option value="price">Price</option>
-            <option value="popular">Popular</option>
-          </select>
-        </div>
+      <div className="mt-6 flex items-center gap-3">
+        <label
+          htmlFor="listing-sort"
+          className="text-sm font-medium text-ink"
+        >
+          Sort
+        </label>
+        <select
+          id="listing-sort"
+          value={value.sort}
+          onChange={(e) => set({ sort: e.target.value as SortOption })}
+          className="rounded-full bg-ivory-deep px-4 py-1.5 text-[13px] text-ink outline-none"
+        >
+          <option value="newest">Newest</option>
+          <option value="price">Price</option>
+          <option value="popular">Popular</option>
+        </select>
       </div>
     </div>
   );
