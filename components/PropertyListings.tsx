@@ -86,7 +86,9 @@ function layoutList(list: ListingMeta[], expandedId: string | null) {
 function isIgnoredClick(target: EventTarget | null) {
   return (
     target instanceof Element &&
-    Boolean(target.closest("a, select, [data-ignore-toggle]"))
+    Boolean(
+      target.closest("a, select, [data-ignore-toggle], button:not([data-close])"),
+    )
   );
 }
 

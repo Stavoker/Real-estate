@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Image, { getImageProps } from "next/image";
 import { preload } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import type { Property } from "@/lib/properties";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
@@ -67,6 +71,7 @@ export function PropertyCard({
 }: PropertyCardProps) {
   const eager = index < 4;
   const extraGallery = property.gallery.filter((src) => src !== property.image);
+  const [activeSrc, setActiveSrc] = useState(property.image);
 
   if (eager) {
     preloadListingImage(property.image, LISTING_IMAGE_SIZES, "high");
@@ -99,13 +104,24 @@ export function PropertyCard({
             "group-data-[expanded=true]/listing:md:h-auto group-data-[expanded=true]/listing:md:min-h-[320px] group-data-[expanded=true]/listing:md:w-[46%]",
           )}
         >
-          <CardImage
-            src={property.image}
-            alt={property.title}
-            eager={eager}
-            className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-            sizes={LISTING_IMAGE_SIZES}
-          />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSrc}
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <CardImage
+                src={activeSrc}
+                alt={property.title}
+                eager={eager}
+                className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                sizes={LISTING_IMAGE_SIZES}
+              />
+            </motion.div>
+          </AnimatePresence>
           {(property.premium || property.featured) && (
             <span className="absolute top-4 left-4 rounded-full bg-ink/70 px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-ivory uppercase backdrop-blur-md">
               {property.featured ? "Featured" : "Premium"}
@@ -148,22 +164,37 @@ export function PropertyCard({
             <div className="min-h-0 overflow-hidden">
               <div className="mt-6 border-t border-ink/10 pt-6">
                 <div className="flex gap-2 overflow-x-auto pb-1">
-                  {property.gallery.map((src) => (
-                    <div
-                      key={src}
-                      className="relative h-[88px] w-[120px] shrink-0 overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] bg-sand"
-                    >
-                      <Image
-                        src={src}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="120px"
-                        loading={eager ? undefined : "lazy"}
-                        decoding="async"
-                      />
-                    </div>
-                  ))}
+                  {property.gallery.map((src) => {
+                    const selected = src === activeSrc;
+                    return (
+                      <button
+                        key={src}
+                        type="button"
+                        aria-label={`Show photo of ${property.title}`}
+                        aria-pressed={selected}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveSrc(src);
+                        }}
+                        className={cn(
+                          "relative h-[88px] w-[120px] shrink-0 cursor-pointer overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] bg-sand touch-manipulation transition duration-300",
+                          selected
+                            ? "opacity-100 ring-2 ring-ink ring-offset-2 ring-offset-[#f8f4ee]"
+                            : "opacity-70 hover:opacity-100",
+                        )}
+                      >
+                        <Image
+                          src={src}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="120px"
+                          loading={eager ? undefined : "lazy"}
+                          decoding="async"
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <p className="font-display mt-5 max-w-3xl text-[22px] leading-[1.3] break-words text-ink">

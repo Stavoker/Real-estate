@@ -22,8 +22,9 @@
   --color-ink-soft: var(--ink-soft);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-cormorant);
+  --font-sans: "SF Pro Display", "SF Pro Text", var(--font-manrope), sans-serif;
+  --font-display: var(--font-inter), sans-serif;
+  --font-mono: "SF Pro Display", "SF Pro Text", var(--font-manrope), sans-serif;
 }
 
 html {
@@ -33,7 +34,7 @@ html {
 body {
   background: var(--ivory);
   color: var(--ink);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: "SF Pro Display", "SF Pro Text", var(--font-manrope), sans-serif;
   overflow-x: hidden;
 }
 
@@ -43,12 +44,24 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-cormorant), Georgia, serif;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 700;
+}
+
+h1.font-display {
+  font-weight: 800;
 }
 
 .font-mono {
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: "SF Pro Display", "SF Pro Text", var(--font-manrope), sans-serif;
   font-variant-numeric: tabular-nums;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 .grain {

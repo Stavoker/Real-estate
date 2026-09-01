@@ -106,9 +106,14 @@ export function PropertyModal({ property, onClose }: PropertyModalProps) {
                 {property.gallery.map((src, i) => (
                   <button
                     key={src}
+                    type="button"
                     onClick={() => setActive(i)}
-                    className={`relative h-20 w-28 shrink-0 overflow-hidden transition ${
-                      i === active ? "ring-2 ring-ink" : "opacity-70"
+                    aria-pressed={i === active}
+                    aria-label={`Show photo ${i + 1}`}
+                    className={`relative h-20 w-28 shrink-0 cursor-pointer overflow-hidden touch-manipulation transition duration-300 ${
+                      i === active
+                        ? "opacity-100 ring-2 ring-ink ring-offset-2 ring-offset-ivory"
+                        : "opacity-70 hover:opacity-100"
                     }`}
                     style={{
                       borderRadius:
