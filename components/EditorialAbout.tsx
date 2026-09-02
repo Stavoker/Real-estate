@@ -70,7 +70,14 @@ function EditorialBlock({
           className="absolute -right-6 -bottom-8 hidden h-[46%] w-[38%] overflow-hidden shadow-2xl lg:block"
           style={{ borderRadius: "1.6rem 0.35rem 1.6rem 1.2rem" }}
         >
-          <Image src={block.image} alt="" fill className="object-cover scale-125" sizes="200px" />
+          <Image
+            src={block.image}
+            alt=""
+            fill
+            quality={90}
+            className="object-cover scale-125"
+            sizes="(min-width: 1024px) 640px, 80vw"
+          />
         </div>
       </div>
       <div className="lg:col-span-5">
@@ -96,8 +103,10 @@ export function EditorialAbout() {
           <p className="font-mono text-[11px] tracking-[0.28em] text-ink-soft uppercase">
             The Studio
           </p>
-          <h2 className="font-display mt-3 max-w-2xl text-[clamp(2.4rem,8vw,3rem)] leading-[0.95] md:text-7xl">
-            A quieter way to find an extraordinary home.
+          <h2 className="font-display mt-3 max-w-4xl text-[clamp(2.4rem,8vw,3rem)] leading-[0.95] md:max-w-5xl md:text-7xl">
+            A quieter way to find
+            <br />
+            an extraordinary home.
           </h2>
         </div>
         {blocks.map((block) => (

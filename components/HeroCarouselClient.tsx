@@ -538,22 +538,16 @@ export function HeroCarouselClient({
           className="flex items-start will-change-transform"
           style={{ gap, x }}
         >
-          {order.map((real, slot) => {
+          {order.map((real) => {
             const item = items[real];
             if (!item) return null;
             const isActive = real === realIndex;
 
             return (
-              <motion.button
+              <motion.div
                 key={item.id ?? real}
-                type="button"
-                aria-label={item.title.replace(/\n/g, " ")}
-                aria-current={slot === track}
-                onClick={() => {
-                  if (slot === track) return;
-                  goBy(slot - track);
-                }}
-                className="relative shrink-0 cursor-pointer overflow-hidden bg-white/5"
+                aria-hidden
+                className="pointer-events-none relative shrink-0 overflow-hidden bg-white/5"
                 style={{
                   width: cardW,
                   height: isActive ? fullH : halfH,
@@ -578,7 +572,7 @@ export function HeroCarouselClient({
                   animate={{ opacity: isActive ? 0 : 0.12 }}
                   transition={spring}
                 />
-              </motion.button>
+              </motion.div>
             );
           })}
         </motion.div>

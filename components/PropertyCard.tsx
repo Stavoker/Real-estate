@@ -163,7 +163,7 @@ export function PropertyCard({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="mt-6 border-t border-ink/10 pt-6">
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex gap-2 overflow-x-auto py-1">
                   {property.gallery.map((src) => {
                     const selected = src === activeSrc;
                     return (
@@ -178,9 +178,7 @@ export function PropertyCard({
                         }}
                         className={cn(
                           "relative h-[88px] w-[120px] shrink-0 cursor-pointer overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] bg-sand touch-manipulation transition duration-300",
-                          selected
-                            ? "opacity-100 ring-2 ring-ink ring-offset-2 ring-offset-[#f8f4ee]"
-                            : "opacity-70 hover:opacity-100",
+                          selected ? "opacity-100" : "opacity-70 hover:opacity-100",
                         )}
                       >
                         <Image
@@ -191,6 +189,15 @@ export function PropertyCard({
                           sizes="120px"
                           loading={eager ? undefined : "lazy"}
                           decoding="async"
+                        />
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "pointer-events-none absolute inset-0 rounded-[inherit] transition duration-300",
+                            selected
+                              ? "shadow-[inset_0_0_0_2px_rgba(255,252,247,0.92),inset_0_0_0_3px_rgba(17,17,16,0.28)]"
+                              : "shadow-none",
+                          )}
                         />
                       </button>
                     );

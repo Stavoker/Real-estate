@@ -125,7 +125,7 @@ export function TestimonialFlip({
               className="glass absolute top-6 right-5 px-4 py-2"
               style={{ borderRadius: "1.15rem 0.3rem 1.15rem 1.15rem" }}
             >
-              <p className="font-display text-2xl leading-none">
+              <p className="font-display text-xl leading-none !font-semibold">
                 {formatPrice(property.price)}
               </p>
             </motion.div>
@@ -192,15 +192,15 @@ export function TestimonialFlip({
             borderRadius: "2.4rem 0.55rem 2.2rem 1.6rem",
           }}
         />
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute right-4 bottom-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/20 text-ivory/85 backdrop-blur-[2px]"
+          animate={{ rotate: flipped ? 180 : 0 }}
+          transition={{ duration: 0.45, ease: luxuryEase }}
+        >
+          <ArrowUpRight size={14} strokeWidth={1.35} />
+        </motion.span>
       </motion.div>
-      <motion.span
-        aria-hidden
-        className="pointer-events-none absolute right-4 bottom-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/20 text-ivory/85 backdrop-blur-[2px]"
-        animate={{ rotate: flipped ? 180 : 0 }}
-        transition={{ duration: 0.45, ease: luxuryEase }}
-      >
-        <ArrowUpRight size={14} strokeWidth={1.35} />
-      </motion.span>
     </motion.button>
   );
 }

@@ -56,9 +56,9 @@ const portrait = (id: string) =>
 export const HERO_IMAGE = img("photo-1600596542815-ffad4c1539a9", 2400);
 
 export const EDITORIAL_IMAGES = {
-  search: img("photo-1600210492486-724fe5c67fb0", 1600),
-  expertise: img("photo-1486406146926-c627a92ad1ab", 1600),
-  process: img("photo-1600566753190-17f0baa2a6c3", 1600),
+  search: img("photo-1600210492486-724fe5c67fb0", 2400),
+  expertise: img("photo-1486406146926-c627a92ad1ab", 2400),
+  process: img("photo-1600566753190-17f0baa2a6c3", 2400),
 };
 
 const agents: Agent[] = [
