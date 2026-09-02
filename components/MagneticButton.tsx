@@ -30,7 +30,7 @@ export function MagneticButton({
     light:
       "bg-white/70 text-ink backdrop-blur-xl border border-white/70 shadow-[0_10px_24px_-18px_rgba(17,17,16,0.28)] hover:shadow-[0_16px_32px_-16px_rgba(17,17,16,0.38)] hover:bg-white",
     ghost:
-      "bg-transparent text-ivory border border-white/35 hover:bg-white/10 hover:shadow-[0_12px_24px_-18px_rgba(255,255,255,0.25)]",
+      "border border-white/30 bg-white/14 text-ivory shadow-[0_12px_40px_-18px_rgba(0,0,0,0.45)] backdrop-blur-2xl hover:bg-white/20 hover:shadow-[0_12px_40px_-18px_rgba(0,0,0,0.45)]",
   }[variant];
 
   const shared = cn(

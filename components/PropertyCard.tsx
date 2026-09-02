@@ -123,10 +123,14 @@ export function PropertyCard({
             </motion.div>
           </AnimatePresence>
           {(property.premium || property.featured) && (
-            <span className="absolute top-4 left-4 rounded-full bg-ink/70 px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-ivory uppercase backdrop-blur-md">
+            <span className="absolute top-4 left-4 z-[2] rounded-full bg-ink/70 px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-ivory uppercase backdrop-blur-md">
               {property.featured ? "Featured" : "Premium"}
             </span>
           )}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-[1] shadow-[inset_0_0_0_1.5px_rgba(0,0,0,0.58)]"
+          />
         </div>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-center px-5 py-4 md:px-7 md:py-5">

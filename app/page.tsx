@@ -37,8 +37,10 @@ export default function HomePage() {
           <p className="font-mono text-[11px] tracking-[0.28em] text-ink-soft uppercase">
             Featured Residences
           </p>
-          <h2 className="font-display mt-3 max-w-2xl text-5xl leading-[0.95] md:text-6xl">
-            Homes that hold the light.
+          <h2 className="font-display mt-3 max-w-3xl text-5xl leading-[0.95] md:max-w-4xl md:text-6xl">
+            Homes that Hold
+            <br />
+            the Light
           </h2>
         </div>
         <div className="h-[540px] md:h-[560px]">
@@ -58,7 +60,9 @@ export default function HomePage() {
             Lived In
           </p>
           <h2 className="font-display mt-3 max-w-xl text-5xl leading-[0.95] md:text-6xl">
-            Flip a residence. Meet the family.
+            Flip a Residence
+            <br />
+            Meet the family.
           </h2>
           <p className="mt-4 max-w-md text-ink-soft">
             Click any card. The other side is a real story — not a listing

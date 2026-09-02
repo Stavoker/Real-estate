@@ -146,6 +146,13 @@ export function TestimonialFlip({
                 {formatNumber(property.sqft)} sqft
               </p>
             </div>
+
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-4 bottom-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/20 text-ivory/85 backdrop-blur-[2px]"
+            >
+              <ArrowUpRight size={14} strokeWidth={1.35} />
+            </span>
           </div>
 
           <div
@@ -180,6 +187,17 @@ export function TestimonialFlip({
             <p className="font-mono text-[10px] tracking-[0.2em] text-white/40 uppercase">
               Click to view residence
             </p>
+
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-4 bottom-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/20 text-ivory/85 backdrop-blur-[2px]"
+            >
+              <ArrowUpRight
+                size={14}
+                strokeWidth={1.35}
+                className="rotate-180"
+              />
+            </span>
           </div>
         </motion.div>
 
@@ -192,14 +210,6 @@ export function TestimonialFlip({
             borderRadius: "2.4rem 0.55rem 2.2rem 1.6rem",
           }}
         />
-        <motion.span
-          aria-hidden
-          className="pointer-events-none absolute right-4 bottom-4 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-black/20 text-ivory/85 backdrop-blur-[2px]"
-          animate={{ rotate: flipped ? 180 : 0 }}
-          transition={{ duration: 0.45, ease: luxuryEase }}
-        >
-          <ArrowUpRight size={14} strokeWidth={1.35} />
-        </motion.span>
       </motion.div>
     </motion.button>
   );

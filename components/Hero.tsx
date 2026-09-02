@@ -41,7 +41,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.95, delay: 0.08, ease: luxuryEase }}
-          className="font-display mt-4 w-full max-w-[72rem] text-[clamp(2.6rem,11vw,3.5rem)] leading-[0.9] text-ivory sm:text-7xl md:text-[92px] lg:max-w-[78%] xl:max-w-[68rem] xl:text-[108px]"
+          className="font-display mt-4 w-full max-w-[72rem] text-[clamp(2.6rem,11vw,3.5rem)] leading-[1.12] text-ivory sm:text-7xl md:text-[92px] lg:max-w-[78%] xl:max-w-[68rem] xl:text-[108px]"
         >
           <span className="block">Luxury Living</span>
           <span className="block whitespace-nowrap">Made Effortless.</span>
