@@ -167,7 +167,7 @@ export function PropertyCard({
           >
             <div className="min-h-0 overflow-hidden">
               <div className="mt-6 border-t border-ink/10 pt-6">
-                <div className="flex gap-2 overflow-x-auto py-1">
+                <div className="flex gap-2 overflow-x-auto py-1.5">
                   {property.gallery.map((src) => {
                     const selected = src === activeSrc;
                     return (
@@ -181,28 +181,30 @@ export function PropertyCard({
                           setActiveSrc(src);
                         }}
                         className={cn(
-                          "relative h-[88px] w-[120px] shrink-0 cursor-pointer overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] bg-sand touch-manipulation transition duration-300",
-                          selected ? "opacity-100" : "opacity-70 hover:opacity-100",
+                          "group relative h-[88px] w-[120px] shrink-0 cursor-pointer overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] border-0 bg-sand outline-none touch-manipulation transition duration-300 focus:outline-none focus-visible:outline-none",
+                          selected
+                            ? "z-[1] opacity-100 shadow-[0_10px_22px_-12px_rgba(17,17,16,0.38)]"
+                            : "opacity-[0.68] shadow-none hover:opacity-100",
                         )}
                       >
-                        <Image
-                          src={src}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="120px"
-                          loading={eager ? undefined : "lazy"}
-                          decoding="async"
-                        />
                         <span
-                          aria-hidden
                           className={cn(
-                            "pointer-events-none absolute inset-0 rounded-[inherit] transition duration-300",
+                            "absolute inset-0 transition duration-300",
                             selected
-                              ? "shadow-[inset_0_0_0_2px_rgba(255,252,247,0.92),inset_0_0_0_3px_rgba(17,17,16,0.28)]"
-                              : "shadow-none",
+                              ? "scale-[1.06] brightness-110"
+                              : "brightness-95 group-hover:brightness-105",
                           )}
-                        />
+                        >
+                          <Image
+                            src={src}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            sizes="120px"
+                            loading={eager ? undefined : "lazy"}
+                            decoding="async"
+                          />
+                        </span>
                       </button>
                     );
                   })}

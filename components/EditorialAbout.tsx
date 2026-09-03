@@ -47,7 +47,7 @@ function EditorialBlock({
   return (
     <div
       ref={ref}
-      className={`grid items-center gap-10 lg:grid-cols-12 ${
+      className={`grid items-start gap-10 lg:grid-cols-12 ${
         block.reverse ? "lg:[&>*:first-child]:order-2" : ""
       }`}
     >

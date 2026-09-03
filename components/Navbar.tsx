@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn, luxuryEase } from "@/lib/utils";
@@ -22,7 +22,9 @@ const menuLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const barRef = useRef<HTMLDivElement>(null);
+  const navListRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [pill, setPill] = useState<{ x: number; width: number } | null>(null);
 
   useEffect(() => {
     const el = barRef.current;
@@ -40,6 +42,24 @@ export function Navbar() {
 
   useEffect(() => {
     setOpen(false);
+  }, [pathname]);
+
+  useLayoutEffect(() => {
+    const list = navListRef.current;
+    if (!list) return;
+
+    const measure = () => {
+      const active = list.querySelector<HTMLElement>("[data-nav-active='true']");
+      if (!active) return;
+      const width = active.offsetWidth;
+      if (width === 0) return;
+      setPill({ x: active.offsetLeft, width });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(list);
+    return () => ro.disconnect();
   }, [pathname]);
 
   useEffect(() => {
@@ -76,35 +96,40 @@ export function Navbar() {
           </Link>
 
           <nav className="absolute left-1/2 hidden -translate-x-1/2 min-[1400px]:block">
-            <ul className="relative flex items-center gap-1 rounded-full bg-white/30 p-1 ring-1 ring-white/40">
+            <div
+              ref={navListRef}
+              className="relative flex items-center gap-1 rounded-full bg-white/30 p-1 ring-1 ring-white/40"
+            >
+              {pill && (
+                <motion.span
+                  aria-hidden
+                  className="pointer-events-none absolute top-1 bottom-1 left-0 rounded-full bg-ink"
+                  initial={false}
+                  animate={{ x: pill.x, width: pill.width }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 380,
+                    damping: 34,
+                  }}
+                />
+              )}
               {links.map((link) => {
                 const active = pathname === link.href;
                 return (
-                  <li key={link.href} className="relative">
-                    <Link
-                      href={link.href}
-                      className={cn(
-                        "relative z-10 block rounded-full px-5 py-2 text-[12px] font-medium tracking-[0.16em] uppercase transition-colors",
-                        active ? "text-ivory" : "text-ink-soft hover:text-ink",
-                      )}
-                    >
-                      {active && (
-                        <motion.span
-                          layoutId="nav-pill"
-                          className="absolute inset-0 -z-10 rounded-full bg-ink"
-                          transition={{
-                            type: "spring",
-                            stiffness: 380,
-                            damping: 34,
-                          }}
-                        />
-                      )}
-                      {link.label}
-                    </Link>
-                  </li>
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    data-nav-active={active ? "true" : undefined}
+                    className={cn(
+                      "relative z-10 block rounded-full px-5 py-2 text-[12px] font-medium tracking-[0.16em] uppercase transition-colors",
+                      active ? "text-ivory" : "text-ink-soft hover:text-ink",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
                 );
               })}
-            </ul>
+            </div>
           </nav>
 
           <div className="hidden items-center min-[1400px]:flex">
