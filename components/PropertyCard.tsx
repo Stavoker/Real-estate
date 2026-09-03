@@ -127,10 +127,6 @@ export function PropertyCard({
               {property.featured ? "Featured" : "Premium"}
             </span>
           )}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-[1] shadow-[inset_0_0_0_1.5px_rgba(0,0,0,0.58)]"
-          />
         </div>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-center px-5 py-4 md:px-7 md:py-5">
@@ -181,10 +177,10 @@ export function PropertyCard({
                           setActiveSrc(src);
                         }}
                         className={cn(
-                          "group relative h-[88px] w-[120px] shrink-0 cursor-pointer overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] border-0 bg-sand outline-none touch-manipulation transition duration-300 focus:outline-none focus-visible:outline-none",
+                          "group relative h-[88px] w-[120px] shrink-0 cursor-pointer overflow-hidden rounded-[1rem_0.35rem_1rem_0.85rem] border-0 bg-sand shadow-none outline-none touch-manipulation transition duration-300 focus:outline-none focus-visible:outline-none",
                           selected
-                            ? "z-[1] opacity-100 shadow-[0_10px_22px_-12px_rgba(17,17,16,0.38)]"
-                            : "opacity-[0.68] shadow-none hover:opacity-100",
+                            ? "z-[1] opacity-100"
+                            : "opacity-[0.68] hover:opacity-100",
                         )}
                       >
                         <span
